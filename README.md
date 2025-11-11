@@ -53,6 +53,35 @@ HelpDesk/
 │  ├─ FileStorageService.cs                   # Persistência de arquivo no S3 (upload/delete)
 │  └─ NotificationService.cs                  # Orquestra e-mail: SLA + TicketActions (com “paper card”)
 │
+│
+├─ Tests/
+│  ├─ Attachments/
+│  │  └─ Attachments_Tests.cs                # Bloqueios de upload, extensões e integração S3 fake
+│  │
+│  ├─ Categories/
+│  │  └─ Categories_Tests.cs                 # CRUD + validação de hierarquia e nomes duplicados
+│  │
+│  ├─ Comments/
+│  │  └─ Comments_Tests.cs                   # Visibilidade público/interno e ACL de autor
+│  │
+│  ├─ Services/
+│  │  └─ SlaBackgroundService_Tests.cs       # Disparo de alertas ≥85%, evita duplicidade, ignora fechados
+│  │
+│  ├─ Tickets/
+│  │  ├─ Tickets_Assign_Tests.cs             # Reatribuição e validação de permissão (Manager/Agent)
+│  │  ├─ Tickets_Create_Tests.cs             # Criação com regras de prioridade, SLA, campos obrigatórios
+│  │  ├─ Tickets_List_Tests.cs               # Paginação, filtro por status, exclusão de cancelados
+│  │  ├─ Tickets_ReopenCancel_Tests.cs       # Reabertura/cancelamento + comentários internos/log
+│  │  ├─ Tickets_Status_Tests.cs             # Transições válidas de status, bloqueios de fluxo
+│  │  └─ Tickets_Update_Tests.cs             # PATCH/PUT: atualiza apenas campos alterados, 400 sem mudanças
+│  │
+│  ├─ Users/
+│  │  └─ Users_Tests.cs                      # Criação, exclusão e bloqueios com tickets ativos
+│  │
+│  └─ Utilities/
+│     ├─ TestDbContextFactory.cs             # DbContext InMemory + seed inicial
+│     └─ TestHelpers.cs                      # Builders (Ticket/User), mocks/stubs de Email/S3
+│
 ├─ appsettings.json                           # ConnString MySQL, S3, SMTP, etc.
 ├─ appsettings.Development.json               # Overrides locais
 ├─ HelpDesk.http                              # Coleções de chamadas HTTP p/ testar endpoints
@@ -270,12 +299,21 @@ Para exportar o YAML atualizado, executar o endpoint GET **SwaggerExport**:
 
 ## 🧰 Tecnologias Utilizadas
 
-- **.NET 8 / C#**
-- **Entity Framework Core (Pomelo MySQL Provider)**
-- **Swagger / Swashbuckle.AspNetCore**
-- **Amazon S3 (AWS SDK)**
-- **MailKit / MimeKit**
-- **Hosted Services / Background Tasks**
+### ⚙️ Backend
+
+- **.NET 8 / C#** – estrutura principal da aplicação
+- **Entity Framework Core (Pomelo MySQL Provider)** – ORM para persistência de dados
+- **Swagger / Swashbuckle.AspNetCore** – geração de documentação OpenAPI
+- **Amazon S3 (AWS SDK)** – armazenamento de anexos em nuvem
+- **MailKit / MimeKit** – envio e composição de e-mails (alertas e notificações)
+- **Hosted Services / Background Tasks** – execução agendada de rotinas (SLA e alertas)
+
+### 🧪 Testes Automatizados
+
+- **xUnit** – framework principal de testes unitários
+- **FluentAssertions** – validações legíveis e expressivas (`result.Should().NotBeNull()`)
+- **Moq** – criação de _mocks_ e _stubs_ para dependências externas (e-mail, S3, etc.)
+- **EF Core InMemory Provider** – simulação de banco de dados para testes isolados
 
 ---
 

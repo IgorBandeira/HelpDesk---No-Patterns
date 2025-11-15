@@ -2,7 +2,7 @@
 
 # `ETAPA 1/2:`
 
-# `Projeto sem padrões`
+# `Projeto com arquitetura em camadas`
 
 # 🧭 HelpDesk API — Sistema de Gerenciamento de Chamados
 

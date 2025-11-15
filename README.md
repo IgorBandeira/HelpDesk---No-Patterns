@@ -246,7 +246,7 @@ Gerencia usuários, papéis e seus tickets associados.
 
 ### 🕐 SlaBackgroundService
 
-Executa a cada ciclo de tempo (5 minutos) verificando tickets cujo tempo decorrido ultrapassou **85% do SLA**, disparando alerta via e-mail.
+Executa a cada ciclo de tempo (5 minutos) verificando tickets cujo tempo decorrido  já atingiu **85% do SLA**, disparando alerta via e-mail.
 
 ### ✉️ NotificationService / EmailService
 

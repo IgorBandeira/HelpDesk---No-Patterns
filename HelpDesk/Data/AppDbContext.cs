@@ -94,13 +94,12 @@ namespace HelpDesk.Data
                 e.Property(x => x.FileName).HasMaxLength(255).IsRequired();
                 e.Property(x => x.ContentType).HasMaxLength(128).IsRequired();
 
-                // era StoragePath -> agora StorageKey/PublicUrl
                 e.Property(x => x.StorageKey).HasMaxLength(1000).IsRequired();
-                e.Property(x => x.PublicUrl).HasMaxLength(2000); // opcional
+                e.Property(x => x.PublicUrl).HasMaxLength(2000);
 
                 e.Property(x => x.UploadedAt).IsRequired();
 
-                e.HasOne<TicketModel>()               // <-- sem x => x.Ticket
+                e.HasOne<TicketModel>()               
                  .WithMany(t => t.Attachments)
                  .HasForeignKey(x => x.TicketId);
 

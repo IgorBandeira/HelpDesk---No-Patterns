@@ -10,7 +10,6 @@ namespace HelpDesk.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // 1) ADD StorageKey se não existir
             migrationBuilder.Sql(@"
         SET @exists := (
             SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
@@ -25,7 +24,6 @@ namespace HelpDesk.Migrations
         PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
     ");
 
-            // 2) Copiar de StoragePath -> StorageKey, se StoragePath existir e StorageKey estiver NULL
             migrationBuilder.Sql(@"
         SET @sp_exists := (
             SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
@@ -40,7 +38,6 @@ namespace HelpDesk.Migrations
         PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
     ");
 
-            // 3) Preencher StorageKey faltante com placeholder e tornar NOT NULL
             migrationBuilder.Sql(@"
         UPDATE `Attachments`
         SET `StorageKey` = CONCAT('missing/', `Id`, '_unknown')
@@ -51,7 +48,6 @@ namespace HelpDesk.Migrations
         MODIFY COLUMN `StorageKey` VARCHAR(1000) NOT NULL;
     ");
 
-            // 4) ADD PublicUrl se não existir
             migrationBuilder.Sql(@"
         SET @exists := (
             SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
@@ -66,7 +62,6 @@ namespace HelpDesk.Migrations
         PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
     ");
 
-            // 5) DROP StoragePath se existir
             migrationBuilder.Sql(@"
         SET @exists := (
             SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
@@ -81,7 +76,6 @@ namespace HelpDesk.Migrations
         PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
     ");
 
-            // 6) CategoryId deve ser NULL (compatível com DeleteBehavior.SetNull)
             migrationBuilder.Sql(@"
         ALTER TABLE `Tickets`
         MODIFY COLUMN `CategoryId` INT NULL;
@@ -90,7 +84,6 @@ namespace HelpDesk.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            // Recriar StoragePath (se não existir)
             migrationBuilder.Sql(@"
         SET @exists := (
             SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
@@ -105,7 +98,6 @@ namespace HelpDesk.Migrations
         PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
     ");
 
-            // Copiar de volta StorageKey -> StoragePath (se StorageKey existir)
             migrationBuilder.Sql(@"
         SET @exists := (
             SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
@@ -120,7 +112,6 @@ namespace HelpDesk.Migrations
         PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
     ");
 
-            // Dropar PublicUrl e StorageKey (se existirem)
             migrationBuilder.Sql(@"
         SET @exists := (
             SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
@@ -147,7 +138,6 @@ namespace HelpDesk.Migrations
         PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
     ");
 
-            // CategoryId continua NULL
             migrationBuilder.Sql(@"
         ALTER TABLE `Tickets`
         MODIFY COLUMN `CategoryId` INT NULL;

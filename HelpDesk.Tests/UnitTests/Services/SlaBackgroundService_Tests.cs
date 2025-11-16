@@ -3,7 +3,7 @@ using FluentAssertions;
 using HelpDesk.Models;
 using HelpDesk.HostedServices;
 
-namespace HelpDesk.Tests.Services
+namespace HelpDesk.Tests.UnitTests.Services
 {
     public class SlaBackgroundService_Tests
     {

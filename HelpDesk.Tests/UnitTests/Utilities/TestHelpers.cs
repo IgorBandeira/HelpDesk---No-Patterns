@@ -1,15 +1,17 @@
 using Amazon.S3;
 using HelpDesk.Data;
 using HelpDesk.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using HDOpts = HelpDesk.Options;
 using MSOpts = Microsoft.Extensions.Options;
 
-namespace HelpDesk.Tests.Utilities
+namespace HelpDesk.Tests.UnitTests.Utilities
 {
     public static class TestHelpers
     {
@@ -41,7 +43,7 @@ namespace HelpDesk.Tests.Utilities
             var services = new ServiceCollection();
             services.AddLogging();
 
-            services.AddSingleton<IOptions<HDOpts.SmtpOptions>>(
+            services.AddSingleton(
                 MSOpts.Options.Create(new HDOpts.SmtpOptions
                 {
                     Host = "localhost",
@@ -54,7 +56,7 @@ namespace HelpDesk.Tests.Utilities
                 })
             );
 
-            services.AddSingleton<EmailService>(sp =>
+            services.AddSingleton(sp =>
                 new EmailService(sp.GetRequiredService<IOptions<HDOpts.SmtpOptions>>(),
                     NullLogger<EmailService>.Instance));
 

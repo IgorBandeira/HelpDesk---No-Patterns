@@ -1,14 +1,15 @@
 using Xunit;
 using FluentAssertions;
-using HelpDesk.Tests.Utilities;
 using HelpDesk.Controllers;
 using HelpDesk.Data;
 using HelpDesk.Models;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Amazon.S3;
+using HelpDesk.Tests.UnitTests.Utilities;
+using Microsoft.AspNetCore.Http;
 
-namespace HelpDesk.Tests.Attachments
+namespace HelpDesk.Tests.UnitTests.Attachments
 {
     public class Attachments_Tests
     {

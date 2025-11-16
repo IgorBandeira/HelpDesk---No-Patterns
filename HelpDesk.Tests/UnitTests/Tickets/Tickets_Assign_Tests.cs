@@ -1,11 +1,11 @@
 using Xunit;
 using FluentAssertions;
-using HelpDesk.Tests.Utilities;
 using HelpDesk.Controllers;
 using HelpDesk.Models;
 using Microsoft.AspNetCore.Mvc;
+using HelpDesk.Tests.UnitTests.Utilities;
 
-namespace HelpDesk.Tests.Tickets
+namespace HelpDesk.Tests.UnitTests.Tickets
 {
     public class Tickets_Assign_Tests
     {

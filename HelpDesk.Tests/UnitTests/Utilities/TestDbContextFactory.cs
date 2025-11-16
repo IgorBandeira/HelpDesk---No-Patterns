@@ -2,7 +2,7 @@ using HelpDesk.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace HelpDesk.Tests.Utilities
+namespace HelpDesk.Tests.UnitTests.Utilities
 {
     public static class TestDbContextFactory
     {

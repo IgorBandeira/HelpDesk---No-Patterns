@@ -2,13 +2,13 @@ using FluentAssertions;
 using HelpDesk.Controllers;
 using HelpDesk.Data;
 using HelpDesk.Models;
-using HelpDesk.Tests.Utilities;
+using HelpDesk.Tests.UnitTests.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Ocsp;
 using Xunit;
 
-namespace HelpDesk.Tests.Tickets
+namespace HelpDesk.Tests.UnitTests.Tickets
 {
     public class Tickets_ReopenCancel_Tests
     {

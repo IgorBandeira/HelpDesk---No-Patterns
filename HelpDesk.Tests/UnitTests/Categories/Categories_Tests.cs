@@ -1,11 +1,12 @@
 using Xunit;
 using FluentAssertions;
-using HelpDesk.Tests.Utilities;
 using HelpDesk.Controllers;
 using HelpDesk.Models;
 using Microsoft.AspNetCore.Mvc;
+using HelpDesk.Tests.UnitTests.Utilities;
+using Microsoft.AspNetCore.Http;
 
-namespace HelpDesk.Tests.Categories
+namespace HelpDesk.Tests.UnitTests.Categories
 {
     public class Categories_Tests
     {

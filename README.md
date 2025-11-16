@@ -14,79 +14,117 @@ Inclui autenticação simplificada via header `userId`, controle de acesso por p
 ## 🧩 Estrutura Geral do Projeto
 
 ```
-HelpDesk/
-├─ Properties/
-│  └─ launchSettings.json                     # Perfis de execução (IIS Express/Kestrel)
+📦 HelpDesk.sln
 │
-├─ Controllers/
-│  ├─ AttachmentsController.cs                # Upload/List/Get/Delete anexos (S3 via FileStorageService)
-│  ├─ CategoriesController.cs                 # CRUD básico de categorias + validações (2 níveis)
-│  ├─ CommentsController.cs                   # Comentários (público/interno), ACL por participante
-│  ├─ SwaggerExportController.cs              # (opcional) endpoint utilitário p/ export Swagger
-│  ├─ TicketsController.cs                    # Tickets: Create/Update/PATCH + assign/requester/status/reopen/cancel
-│  └─ UsersController.cs                      # Gestão de usuários (GET/PATCH/DELETE)
-│
-├─ Data/
-│  └─ AppDbContext.cs                         # DbContext EF Core (Pomelo MySQL) + DbSets e mapeamentos
-│
-├─ HostedServices/
-│  └─ SlaBackgroundService.cs                 # Worker que dispara alertas de SLA (≥85%) por e-mail
-│
-├─ Migrations/                                # Migrations do EF Core (schema e seeds)
-│
-├─ Models/
-│  ├─ AttachmentModel.cs                      # Anexos (chave S3, URL pública, uploader)
-│  ├─ CategoryModel.cs                        # Categorias com ParentId (máx. 2 níveis)
-│  ├─ DTOs.cs                                 # Request/Response DTOs usados nos controllers
-│  ├─ Enums.cs                                # Status, Priority, CommentVisibility + helpers (ToSla etc.)
-│  ├─ TicketActionModel.cs                    # Log das ações do ticket (descricao, createdAt)
-│  ├─ TicketCommentModel.cs                   # Comentários (autor opcional, visibilidade)
-│  ├─ TicketModel.cs                          # Entidade principal; SLA (CreatedAt, SlaDueAt, SlaStartAt)
-│  └─ UserModel.cs                            # Usuário (Name, Email, Role: Requester/Agent/Manager)
-│
-├─ Options/
-│  ├─ S3Options.cs                            # { Bucket, Region, BaseUrl, ... }
-│  └─ SmtpOptions.cs                          # { Host, Port, User, Password, FromName, FromEmail }
-│
-├─ Services/
-│  ├─ EmailService.cs                         # Envio via MailKit (SMTP Google/Gmail)
-│  ├─ FileStorageService.cs                   # Persistência de arquivo no S3 (upload/delete)
-│  └─ NotificationService.cs                  # Orquestra e-mail: SLA + TicketActions (com “paper card”)
-│
-│
-├─ Tests/
-│  ├─ Attachments/
-│  │  └─ Attachments_Tests.cs                # Bloqueios de upload, extensões e integração S3 fake
+├─ 📁 HelpDesk/                                  # 🌐 Projeto principal da API (ASP.NET Core)
 │  │
-│  ├─ Categories/
-│  │  └─ Categories_Tests.cs                 # CRUD + validação de hierarquia e nomes duplicados
+│  ├─ Properties/
+│  │  └─ launchSettings.json                      # Perfis de execução: IIS Express / Kestrel / ambiente Development
 │  │
-│  ├─ Comments/
-│  │  └─ Comments_Tests.cs                   # Visibilidade público/interno e ACL de autor
+│  ├─ Controllers/                                # 🎯 Camada de Entrada (REST Controllers)
+│  │  ├─ AttachmentsController.cs                 # Upload/List/Get/Delete de anexos (com regras de extensão, limite, autor)
+│  │  ├─ CategoriesController.cs                  # CRUD de categorias com limite de 2 níveis e validações
+│  │  ├─ CommentsController.cs                    # Comentários públicos/internos + regras de visibilidade e ACL
+│  │  ├─ SwaggerExportController.cs               # Endpoint opcional para exportar Swagger JSON
+│  │  ├─ TicketsController.cs                     # Controller principal: criação, edição, workflow, SLA, reopen/cancel
+│  │  └─ UsersController.cs                       # Criação, edição e deleção de usuários + validações de tickets ativos
+│  │
+│  ├─ Data/
+│  │  └─ AppDbContext.cs                          # EF Core DbContext (MySQL) com DbSets e configurações
+│  │
+│  ├─ HostedServices/
+│  │  └─ SlaBackgroundService.cs                  # Serviço em segundo plano: monitora SLA e dispara alertas
+│  │
+│  ├─ Migrations/                                 # Arquivos gerados do EF: schema inicial + seeds
+│  │
+│  ├─ Models/
+│  │  ├─ AttachmentModel.cs                       # Entidade de anexos (chaves S3, metadados, autor)
+│  │  ├─ CategoryModel.cs                         # Entidade categoria com ParentId (1 nível de hierarquia)
+│  │  ├─ DTOs.cs                                  # Todos os DTOs usados nos endpoints (requests/responses)
+│  │  ├─ Enums.cs                                 # Status, Prioridades, Visibilidades e helpers ToSla()
+│  │  ├─ TicketActionModel.cs                     # Log de ações automáticas do ticket (auditoria)
+│  │  ├─ TicketCommentModel.cs                    # Comentários do ticket + visibilidade
+│  │  ├─ TicketModel.cs                           # Entidade principal, incluindo cálculo de SLA e datas
+│  │  └─ UserModel.cs                             # Usuário com Role (Requester, Agent, Manager)
+│  │
+│  ├─ Options/
+│  │  ├─ S3Options.cs                             # Configurações tipadas p/ S3 ({Bucket, BaseUrl, Region...})
+│  │  └─ SmtpOptions.cs                           # Config SMTP (Host, Porta, Credenciais, DisableDelivery)
 │  │
 │  ├─ Services/
-│  │  └─ SlaBackgroundService_Tests.cs       # Disparo de alertas ≥85%, evita duplicidade, ignora fechados
+│  │  ├─ EmailService.cs                          # Envio de e-mail via MailKit (SMTP Google/Gmail)
+│  │  ├─ FileStorageService.cs                    # Abstração S3: upload/delete de arquivos
+│  │  └─ NotificationService.cs                   # Orquestra notificações por e-mail (SLA + TicketActions)
 │  │
-│  ├─ Tickets/
-│  │  ├─ Tickets_Assign_Tests.cs             # Reatribuição e validação de permissão (Manager/Agent)
-│  │  ├─ Tickets_Create_Tests.cs             # Criação com regras de prioridade, SLA, campos obrigatórios
-│  │  ├─ Tickets_List_Tests.cs               # Paginação, filtro por status, exclusão de cancelados
-│  │  ├─ Tickets_ReopenCancel_Tests.cs       # Reabertura/cancelamento + comentários internos/log
-│  │  ├─ Tickets_Status_Tests.cs             # Transições válidas de status, bloqueios de fluxo
-│  │  └─ Tickets_Update_Tests.cs             # PATCH/PUT: atualiza apenas campos alterados, 400 sem mudanças
-│  │
-│  ├─ Users/
-│  │  └─ Users_Tests.cs                      # Criação, exclusão e bloqueios com tickets ativos
-│  │
-│  └─ Utilities/
-│     ├─ TestDbContextFactory.cs             # DbContext InMemory + seed inicial
-│     └─ TestHelpers.cs                      # Builders (Ticket/User), mocks/stubs de Email/S3
+│  ├─ appsettings.json                            # Connection string e configs
+│  ├─ appsettings.Development.json                # Overrides locais para ambiente Dev
+│  ├─ HelpDesk.http                               # Arquivo para testar endpoints via VS/REST Client
+│  ├─ Program.cs                                  # Boot da aplicação: DI, Swagger, HealthChecks, HostedService
+│  └─ HelpDesk.csproj
 │
-├─ appsettings.json                           # ConnString MySQL, S3, SMTP, etc.
-├─ appsettings.Development.json               # Overrides locais
-├─ HelpDesk.http                              # Coleções de chamadas HTTP p/ testar endpoints
-├─ Program.cs                                 # DI, Swagger, HealthChecks (_db/_s3/_email), HostedService
-└─ HelpDesk.csproj
+│
+└─ 📁 HelpDesk.Tests/                             # 🧪 Projeto de testes (unitários + integração)
+   │
+   ├─ 📁 IntegrationTests/                        # 🌐 Testes end-to-end (API real via HttpClient)
+   │  │
+   │  ├─ 📁 Attachments/
+   │  │  └─ Attachments_Integration_Upload_Tests.cs 
+   │  │       # Testa upload real (multipart form), bloqueios de extensão, 201 Created
+   │  │
+   │  ├─ 📁 Categories/
+   │  │  └─ Categories_Integration_Tests.cs        # CRUD completo de categorias via API
+   │  │
+   │  ├─ 📁 Comments/
+   │  │  └─ Comments_Integration_Tests.cs          # Comentários + visibilidade + autor
+   │  │
+   │  ├─ 📁 Tickets/
+   │  │  ├─ Tickets_Integration_Create_Tests.cs    # POST /tickets + regras de validação
+   │  │  ├─ Tickets_Integration_ListAndDetails_Tests.cs # GET /tickets + filtros + detalhes
+   │  │  ├─ Tickets_Integration_Workflow_Tests.cs  # Workflow real: assign, status, reopen/cancel
+   │  │  └─ (...)
+   │  │
+   │  ├─ 📁 Users/
+   │  │  └─ Users_Integration_Tests.cs             # Criação e bloqueios quando existem tickets ativos
+   │  │
+   │  └─ HelpDeskApiFactory.cs                     # WebApplicationFactory<Program> com:
+   │                                               # - SQLite in-memory compartilhado
+   │                                               # - Mock de Amazon S3
+   │                                               # - FileStorageService NOOP
+   │                                               # - SMTP desabilitado (DisableDelivery)
+   │                                               # - Seed básico (Requester/Agent/Manager)
+   │
+   │
+   ├─ 📁 UnitTests/                                # 🧩 Testes de regra de negócio (sem HTTP)
+   │  │
+   │  ├─ 📁 Attachments/
+   │  │  └─ Attachments_Tests.cs                   # Extensões proibidas, ticket fechado, autor
+   │  │
+   │  ├─ 📁 Categories/
+   │  │  └─ Categories_Tests.cs                    # Hierarquia e nomes duplicados
+   │  │
+   │  ├─ 📁 Comments/
+   │  │  └─ Comments_Tests.cs                      # Visibilidade e ACL
+   │  │
+   │  ├─ 📁 Services/
+   │  │  └─ SlaBackgroundService_Tests.cs          # 85% SLA, duplicidade, ignora fechados
+   │  │
+   │  ├─ 📁 Tickets/
+   │  │  ├─ Tickets_Assign_Tests.cs                # Permissões Manager/Agent
+   │  │  ├─ Tickets_Create_Tests.cs                # Validações de criação + SLA
+   │  │  ├─ Tickets_List_Tests.cs                  # Filtros, paginação
+   │  │  ├─ Tickets_ReopenCancel_Tests.cs          # Motivo obrigatório, comentários internos
+   │  │  ├─ Tickets_Status_Tests.cs                # Workflow autorizado + bloqueios
+   │  │  └─ Tickets_Update_Tests.cs                # PATCH: 400 sem alterações
+   │  │
+   │  ├─ 📁 Users/
+   │  │  └─ Users_Tests.cs                         # Bloqueios de exclusão e validações de input
+   │  │
+   │  └─ 📁 Utilities/
+   │     ├─ TestDbContextFactory.cs                # DbContext InMemory para UNIT tests
+   │     └─ TestHelpers.cs                         # Mocks (S3, SMTP), builders, helpers de headers
+   │
+   └─ HelpDesk.Tests.csproj                        # xUnit, FluentAssertions, Moq, SQLite, Mvc.Testing
+
 ```
 
 ---
@@ -312,8 +350,10 @@ Para exportar o YAML atualizado, executar o endpoint GET **SwaggerExport**:
 
 - **xUnit** – framework principal de testes unitários
 - **FluentAssertions** – validações legíveis e expressivas (`result.Should().NotBeNull()`)
-- **Moq** – criação de _mocks_ e _stubs_ para dependências externas (e-mail, S3, etc.)
-- **EF Core InMemory Provider** – simulação de banco de dados para testes isolados
+- **Moq** – criação de *mocks* e *stubs* para dependências externas (e-mail, S3, etc.)
+- **EF Core InMemory Provider** – simulação de banco de dados em memória para testes unitários isolados
+- **EF Core SQLite (in-memory)** – banco relacional leve para testes de integração mais próximos do cenário real
+- **Microsoft.AspNetCore.Mvc.Testing** – uso do `WebApplicationFactory<Program>` para testes de integração da API via `HttpClient`
 
 ---
 

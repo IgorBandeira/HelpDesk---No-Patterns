@@ -363,6 +363,6 @@ Para exportar o YAML atualizado, executar o endpoint GET **SwaggerExport**:
 - Validações com mensagens de erro claras e detalhadas.
 - Uso de transações EF (`BeginTransactionAsync`) em operações críticas.
 - Padronização de respostas HTTP (200, 400, 401, 403, 404, 409).
-- Cobertura de Testes Unitários.
+- Cobertura de Testes Unitários e de Integração.
 
 ---

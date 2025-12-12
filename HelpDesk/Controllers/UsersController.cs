@@ -291,6 +291,12 @@ namespace HelpDesk.Controllers
             if (!string.IsNullOrWhiteSpace(dto.Email))
             {
                 var newEmail = dto.Email.Trim();
+
+                var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+                if (!System.Text.RegularExpressions.Regex.IsMatch(newEmail, emailRegex,
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                    return BadRequest("Formato de e-mail inválido.");
+                    
                 if (!string.Equals(u.Email, newEmail, StringComparison.OrdinalIgnoreCase))
                 {
                     var emailExists = await _db.Users.AnyAsync(x => x.Email.ToLower() == newEmail.ToLower() && x.Id != id);
